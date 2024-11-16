@@ -5,20 +5,33 @@
 This project expanded the REMIX IDE to fetch the ABI from blockexplorers.
 This enables the REMIX IDE to display `proxy read`/`proxy write`/`implementation read`/`implementation write` sections.
 
+#### Why do smart contract devs benefit from this new feature in REMIX IDE
+
+  - No need to search for source files/ABI files on your local computer anymore.
+
+  - Saves engineering time.
+
+  - Simplifies interactions with contracts from third parties.
+
+  - No need to switch between block explorers and REMIX IDE.
+
+  - Easier onboarding of new engineers if they can stay at one tool.
+
 #### Past And Future Work
 
-The interfaces are loaded for verified contracts. Future work will expand the REMIX IDE to load interfaces for unverified contracts as well:
+The interfaces in this repo are loaded for verified contracts. Past/Future work will expand this project to load interfaces for unverified contracts in REMIX IDE as well:
 - [ContractCompanion](https://github.com/DOBEN/ContractCompanion)
 - [Remix MVP](https://github.com/DOBEN/remix-project)
 - [BlockScout Issue](https://github.com/blockscout/blockscout/issues/6203)
+- [MileStones](https://github.com/DOBEN/ContractCompanion/issues/2)
 
 ## Code added to the REMIX IDE during the hackathon:
 
-[CodeDiff](https://github.com/DOBEN/ETHGlobal2024/commit/8d46a08ed1da0ed5497fc43da38525086662a06e)
+[CodeDiff](https://github.com/DOBEN/ETHGlobal2024/pull/1/files)
 
 ## Presentation
 
-[Presentation](https://github.com/DOBEN/remix-project/blob/master/ETHSofiaContractCompanion.pdf)
+[Presentation](https://github.com/DOBEN/ETHGlobal2024/blob/master/ETHGlobal2024.pdf)
 
 ## Walk through
 
@@ -34,8 +47,24 @@ The interfaces are loaded for verified contracts. Future work will expand the RE
 <br />
 <br />
 <br />
-
-
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
 
 <p align="center">
   <img src="./apps/remix-ide/src/assets/img/icon.png" alt="Remix Logo" width="200"/>
