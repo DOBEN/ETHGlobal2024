@@ -18,6 +18,10 @@ export function UniversalDappUI(props: UdappProps) {
   const intl = useIntl()
   const [toggleExpander, setToggleExpander] = useState<boolean>(true)
   const [contractABI, setContractABI] = useState<FuncABI[]>(null)
+  const [contractABIRead, setContractABIRead] = useState<FuncABI[]>(null)
+  const [contractABIWrite, setContractABIWrite] = useState<FuncABI[]>(null)
+  const [contractABIProxyRead, setContractABIProxyRead] = useState<FuncABI[]>(null)
+  const [contractABIProxyWrite, setContractABIProxyWrite] = useState<FuncABI[]>(null)
   const [address, setAddress] = useState<string>('')
   const [expandPath, setExpandPath] = useState<string[]>([])
   const [llIError, setLlIError] = useState<string>('')
@@ -28,10 +32,22 @@ export function UniversalDappUI(props: UdappProps) {
   useEffect(() => {
     if (!props.instance.abi) {
       const abi = txHelper.sortAbiFunction(props.instance.contractData.abi)
+      const abiRead = txHelper.sortAbiFunction(props.instance.contractData.abiRead)
+      const abiWrite = txHelper.sortAbiFunction(props.instance.contractData.abiWrite)
+      const abiProxyRead = txHelper.sortAbiFunction(props.instance.contractData.abiProxyRead)
+      const abiProxyWrite = txHelper.sortAbiFunction(props.instance.contractData.abiProxyWrite)
 
       setContractABI(abi)
+      setContractABIRead(abiRead)
+      setContractABIWrite(abiWrite)
+      setContractABIProxyRead(abiProxyRead)
+      setContractABIProxyWrite(abiProxyWrite)
     } else {
       setContractABI(props.instance.abi)
+      setContractABIRead(props.instance.abiRead)
+      setContractABIWrite(props.instance.abiWrite)
+      setContractABIProxyRead(props.instance.abiProxyRead)
+      setContractABIProxyWrite(props.instance.abiProxyWrite)
     }
     if (props.instance.address) {
       let address =
@@ -114,7 +130,7 @@ export function UniversalDappUI(props: UdappProps) {
     await props.plugin.call('fileManager', 'remove', `.deploys/pinned-contracts/${props.plugin.REACT_API.chainId}/${props.instance.address}.json`)
   }
 
-  const remove = async() => {
+  const remove = async () => {
     if (props.instance.isPinned) {
       await unsavePinnedContract()
       _paq.push(['trackEvent', 'udapp', 'pinContracts', 'removePinned'])
@@ -122,13 +138,13 @@ export function UniversalDappUI(props: UdappProps) {
     props.removeInstance(props.index)
   }
 
-  const unpinContract = async() => {
+  const unpinContract = async () => {
     await unsavePinnedContract()
     _paq.push(['trackEvent', 'udapp', 'pinContracts', 'unpinned'])
     props.unpinInstance(props.index)
   }
 
-  const pinContract = async() => {
+  const pinContract = async () => {
     const workspace = await props.plugin.call('filePanel', 'getCurrentWorkspace')
     const objToSave = {
       name: props.instance.name,
@@ -252,26 +268,26 @@ export function UniversalDappUI(props: UdappProps) {
         </span>
         <div className="input-group udapp_nameNbuts">
           <div className="udapp_titleText input-group-prepend">
-            { props.instance.isPinned ? ( <CustomTooltip placement="top" tooltipClasses="text-nowrap" tooltipId="udapp_udappUnpinTooltip" tooltipText={props.instance.isPinned ? `Pinned for network: ${props.plugin.REACT_API.chainId}, at:  ${new Date(props.instance.pinnedAt).toLocaleString()}` : '' }>
+            {props.instance.isPinned ? (<CustomTooltip placement="top" tooltipClasses="text-nowrap" tooltipId="udapp_udappUnpinTooltip" tooltipText={props.instance.isPinned ? `Pinned for network: ${props.plugin.REACT_API.chainId}, at:  ${new Date(props.instance.pinnedAt).toLocaleString()}` : ''}>
               <span className="input-group-text udapp_spanTitleText">
                 {props.instance.name} at {shortenAddress(address)}
               </span>
-            </CustomTooltip>) : ( <span className="input-group-text udapp_spanTitleText">
+            </CustomTooltip>) : (<span className="input-group-text udapp_spanTitleText">
               {props.instance.name} at {shortenAddress(address)} ({props.context})
-            </span>) }
+            </span>)}
           </div>
           <div className="btn" style={{ padding: '0.15rem' }}>
             <CopyToClipboard tip={intl.formatMessage({ id: 'udapp.copyAddress' })} content={address} direction={'top'} />
           </div>
-          { props.instance.isPinned ? ( <div className="btn" style={{ padding: '0.15rem', marginLeft: '-0.5rem' }}>
+          {props.instance.isPinned ? (<div className="btn" style={{ padding: '0.15rem', marginLeft: '-0.5rem' }}>
             <CustomTooltip placement="top" tooltipClasses="text-nowrap" tooltipId="udapp_udappUnpinTooltip" tooltipText={<FormattedMessage id="udapp.tooltipTextUnpin" />}>
               <i className="fas fa-thumbtack p-2" aria-hidden="true" data-id="universalDappUiUdappUnpin" onClick={unpinContract}></i>
             </CustomTooltip>
-          </div> ) : ( <div className="btn" style={{ padding: '0.15rem', marginLeft: '-0.5rem' }}>
+          </div>) : (<div className="btn" style={{ padding: '0.15rem', marginLeft: '-0.5rem' }}>
             <CustomTooltip placement="top" tooltipClasses="text-nowrap" tooltipId="udapp_udappPinTooltip" tooltipText={<FormattedMessage id="udapp.tooltipTextPin" />}>
               <i className="far fa-thumbtack p-2" aria-hidden="true" data-id="universalDappUiUdappPin" onClick={pinContract}></i>
             </CustomTooltip>
-          </div> )
+          </div>)
           }
         </div>
         <div className="btn" style={{ padding: '0.15rem', marginLeft: '-0.5rem' }}>
@@ -301,20 +317,20 @@ export function UniversalDappUI(props: UdappProps) {
               )}
             </div>
           </div>
-          { props.instance.isPinned && props.instance.pinnedAt ? (
+          {props.instance.isPinned && props.instance.pinnedAt ? (
             <div className="d-flex" data-id="instanceContractPinnedAt">
               <label>
                 <b><FormattedMessage id="udapp.pinnedAt" />:</b> {(new Date(props.instance.pinnedAt)).toLocaleString()}
               </label>
             </div>
-          ) : null }
-          { props.instance.isPinned && props.instance.filePath ? (
+          ) : null}
+          {props.instance.isPinned && props.instance.filePath ? (
             <div className="d-flex" data-id="instanceContractFilePath" style={{ textAlign: "start", lineBreak: "anywhere" }}>
               <label>
                 <b><FormattedMessage id="udapp.filePath" />:</b> {props.instance.filePath}
               </label>
             </div>
-          ) : null }
+          ) : null}
           {contractABI &&
             contractABI.map((funcABI, index) => {
               if (funcABI.type !== 'function') return null
@@ -331,7 +347,203 @@ export function UniversalDappUI(props: UdappProps) {
                     plugin={props.plugin}
                     runTabState={props.runTabState}
                     funcABI={funcABI}
-                    clickCallBack={(valArray: {name: string; type: string}[], inputsValues: string) => {
+                    clickCallBack={(valArray: { name: string; type: string }[], inputsValues: string) => {
+                      runTransaction(lookupOnly, funcABI, valArray, inputsValues, index)
+                    }}
+                    inputs={inputs}
+                    evmBC={evmBC}
+                    lookupOnly={lookupOnly}
+                    key={index}
+                  />
+                  {lookupOnly && (
+                    <div className="udapp_value" data-id="udapp_value">
+                      <TreeView id="treeView">
+                        {Object.keys(props.instance.decodedResponse || {}).map((key) => {
+                          const funcIndex = index.toString()
+                          const response = props.instance.decodedResponse[key]
+
+                          return key === funcIndex
+                            ? Object.keys(response || {}).map((innerkey, index) => {
+                              return renderData(props.instance.decodedResponse[key][innerkey], response, innerkey, innerkey)
+                            })
+                            : null
+                        })}
+                      </TreeView>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+
+          <br />
+          <div >
+            Read
+          </div>
+          <br />
+          {contractABIRead &&
+            contractABIRead.map((funcABI, index) => {
+              if (funcABI.type !== 'function') return null
+              const isConstant = funcABI.constant !== undefined ? funcABI.constant : false
+              const lookupOnly = funcABI.stateMutability === 'view' || funcABI.stateMutability === 'pure' || isConstant
+              const inputs = props.getFuncABIInputs(funcABI)
+
+              return (
+                <div key={index}>
+                  <ContractGUI
+                    getVersion={props.getVersion}
+                    getCompilerDetails={props.getCompilerDetails}
+                    evmCheckComplete={props.evmCheckComplete}
+                    plugin={props.plugin}
+                    runTabState={props.runTabState}
+                    funcABI={funcABI}
+                    clickCallBack={(valArray: { name: string; type: string }[], inputsValues: string) => {
+                      runTransaction(lookupOnly, funcABI, valArray, inputsValues, index)
+                    }}
+                    inputs={inputs}
+                    evmBC={evmBC}
+                    lookupOnly={lookupOnly}
+                    key={index}
+                  />
+                  {lookupOnly && (
+                    <div className="udapp_value" data-id="udapp_value">
+                      <TreeView id="treeView">
+                        {Object.keys(props.instance.decodedResponse || {}).map((key) => {
+                          const funcIndex = index.toString()
+                          const response = props.instance.decodedResponse[key]
+
+                          return key === funcIndex
+                            ? Object.keys(response || {}).map((innerkey, index) => {
+                              return renderData(props.instance.decodedResponse[key][innerkey], response, innerkey, innerkey)
+                            })
+                            : null
+                        })}
+                      </TreeView>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+
+          <br />
+          <div >
+            Write
+          </div>
+          <br />
+          {contractABIWrite &&
+            contractABIWrite.map((funcABI, index) => {
+              if (funcABI.type !== 'function') return null
+              const isConstant = funcABI.constant !== undefined ? funcABI.constant : false
+              const lookupOnly = funcABI.stateMutability === 'view' || funcABI.stateMutability === 'pure' || isConstant
+              const inputs = props.getFuncABIInputs(funcABI)
+
+              return (
+                <div key={index}>
+                  <ContractGUI
+                    getVersion={props.getVersion}
+                    getCompilerDetails={props.getCompilerDetails}
+                    evmCheckComplete={props.evmCheckComplete}
+                    plugin={props.plugin}
+                    runTabState={props.runTabState}
+                    funcABI={funcABI}
+                    clickCallBack={(valArray: { name: string; type: string }[], inputsValues: string) => {
+                      runTransaction(lookupOnly, funcABI, valArray, inputsValues, index)
+                    }}
+                    inputs={inputs}
+                    evmBC={evmBC}
+                    lookupOnly={lookupOnly}
+                    key={index}
+                  />
+                  {lookupOnly && (
+                    <div className="udapp_value" data-id="udapp_value">
+                      <TreeView id="treeView">
+                        {Object.keys(props.instance.decodedResponse || {}).map((key) => {
+                          const funcIndex = index.toString()
+                          const response = props.instance.decodedResponse[key]
+
+                          return key === funcIndex
+                            ? Object.keys(response || {}).map((innerkey, index) => {
+                              return renderData(props.instance.decodedResponse[key][innerkey], response, innerkey, innerkey)
+                            })
+                            : null
+                        })}
+                      </TreeView>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+
+          <br />
+          <div >
+            Proxy Read
+          </div>
+          <br />
+          {contractABIProxyRead &&
+            contractABIProxyRead.map((funcABI, index) => {
+              if (funcABI.type !== 'function') return null
+              const isConstant = funcABI.constant !== undefined ? funcABI.constant : false
+              const lookupOnly = funcABI.stateMutability === 'view' || funcABI.stateMutability === 'pure' || isConstant
+              const inputs = props.getFuncABIInputs(funcABI)
+
+              return (
+                <div key={index}>
+                  <ContractGUI
+                    getVersion={props.getVersion}
+                    getCompilerDetails={props.getCompilerDetails}
+                    evmCheckComplete={props.evmCheckComplete}
+                    plugin={props.plugin}
+                    runTabState={props.runTabState}
+                    funcABI={funcABI}
+                    clickCallBack={(valArray: { name: string; type: string }[], inputsValues: string) => {
+                      runTransaction(lookupOnly, funcABI, valArray, inputsValues, index)
+                    }}
+                    inputs={inputs}
+                    evmBC={evmBC}
+                    lookupOnly={lookupOnly}
+                    key={index}
+                  />
+                  {lookupOnly && (
+                    <div className="udapp_value" data-id="udapp_value">
+                      <TreeView id="treeView">
+                        {Object.keys(props.instance.decodedResponse || {}).map((key) => {
+                          const funcIndex = index.toString()
+                          const response = props.instance.decodedResponse[key]
+
+                          return key === funcIndex
+                            ? Object.keys(response || {}).map((innerkey, index) => {
+                              return renderData(props.instance.decodedResponse[key][innerkey], response, innerkey, innerkey)
+                            })
+                            : null
+                        })}
+                      </TreeView>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+
+          <br />
+          <div >
+            Proxy Write
+          </div>
+          <br />
+          {contractABIProxyWrite &&
+            contractABIProxyWrite.map((funcABI, index) => {
+              if (funcABI.type !== 'function') return null
+              const isConstant = funcABI.constant !== undefined ? funcABI.constant : false
+              const lookupOnly = funcABI.stateMutability === 'view' || funcABI.stateMutability === 'pure' || isConstant
+              const inputs = props.getFuncABIInputs(funcABI)
+
+              return (
+                <div key={index}>
+                  <ContractGUI
+                    getVersion={props.getVersion}
+                    getCompilerDetails={props.getCompilerDetails}
+                    evmCheckComplete={props.evmCheckComplete}
+                    plugin={props.plugin}
+                    runTabState={props.runTabState}
+                    funcABI={funcABI}
+                    clickCallBack={(valArray: { name: string; type: string }[], inputsValues: string) => {
                       runTransaction(lookupOnly, funcABI, valArray, inputsValues, index)
                     }}
                     inputs={inputs}
@@ -375,7 +587,7 @@ export function UniversalDappUI(props: UdappProps) {
                   <a href={`https://solidity.readthedocs.io/en/v${props.solcVersion.version}/contracts.html`} target="_blank" rel="noreferrer">
                     <i aria-hidden="true" className="fas fa-info my-2 mr-1"></i>
                   </a>
-                ) :<a href={`https://solidity.readthedocs.io/en/v${props.solcVersion.version}/contracts.html#receive-ether-function`} target="_blank" rel="noreferrer">
+                ) : <a href={`https://solidity.readthedocs.io/en/v${props.solcVersion.version}/contracts.html#receive-ether-function`} target="_blank" rel="noreferrer">
                   <i aria-hidden="true" className="fas fa-info my-2 mr-1"></i>
                 </a>
               }

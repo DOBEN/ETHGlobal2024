@@ -30,7 +30,7 @@ const loadContractFromAddress = (plugin: RunTab, address, confirmCb, cb) => {
       } catch (e) {
         return cb('Failed to parse the current file as JSON ABI.')
       }
-      _paq.push(['trackEvent', 'udapp', 'useAtAddress' , 'AtAddressLoadWithABI'])
+      _paq.push(['trackEvent', 'udapp', 'useAtAddress', 'AtAddressLoadWithABI'])
       cb(null, 'abi', abi)
     })
   } else {
@@ -252,29 +252,62 @@ const deployContract = (plugin: RunTab, selectedContract, args, contractMetadata
   plugin.blockchain.deployContractWithLibrary(selectedContract, args, contractMetadata, compilerContracts, callbacks, confirmationCb)
 }
 
+/**
+ * Fetches ABI data from BlockScout using a CORS proxy.
+ *
+ * @param address - The smart contract address to fetch the ABI for.
+ * @param blockScoutMethodsEndpoint - The sub url for the API endpoint.
+ * @returns The parsed ABI data if successful, or `null` if an error occurs.
+ */
+async function fetchContractABI(address: string, blockScoutMethodsEndpoint: string): Promise<FuncABI[]> {
+  const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+  const blockScoutBaseUrl = 'https://eth-sepolia.blockscout.com/api/v2/smart-contracts/';
+  const url = `${corsProxy}${blockScoutBaseUrl}${address}/${blockScoutMethodsEndpoint}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+    });
+
+    if (!response.ok) {
+      console.error(`ERROR fetching from BlockScout ${url}`);
+      throw new Error(`ERROR fetching from BlockScout ${url}`);
+    }
+
+    const parsedABI = await response.json();
+    return parsedABI;
+  } catch (error) {
+    console.error('An error occurred while fetching the ABI:', error);
+    throw new Error('An error occurred while fetching the ABI:');
+  }
+}
+
 export const loadAddress = (plugin: RunTab, dispatch: React.Dispatch<any>, contract: ContractData, address: string) => {
   loadContractFromAddress(plugin, address,
     (cb) => {
       dispatch(displayNotification('At Address', `Do you really want to interact with ${address} using the current ABI definition?`, 'OK', 'Cancel', cb, null))
     },
-    (error, loadType, abi) => {
+    async (error, loadType, abi) => {
       if (error) {
         return dispatch(displayNotification('Alert', error, 'OK', null))
       }
-      if (loadType === 'abi') {
-        const contractData = { name: '<at address>', abi, contract: { file: plugin.REACT_API.contracts.currentFile } } as ContractData
-        return addInstance(dispatch, { contractData, address, name: '<at address>' })
-      } else if (loadType === 'instance') {
-        if (!contract) return plugin.call('notification', 'toast', 'No compiled contracts found.')
-        const currentFile = plugin.REACT_API.contracts.currentFile
-        const compiler = plugin.REACT_API.contracts.contractList[currentFile].find(item => item.alias === contract.name)
-        const contractData = getSelectedContract(contract.name, compiler.compiler)
-        return addInstance(dispatch, { contractData, address, name: contract.name })
+
+      try {
+        const parsedReadABI = await fetchContractABI(address, 'methods-read')
+        const parsedWriteABI = await fetchContractABI(address, 'methods-write')
+        const parsedProxyReadABI = await fetchContractABI(address, 'methods-read-proxy')
+        const parsedProxyWriteABI = await fetchContractABI(address, 'methods-write-proxy')
+
+        const contractData = { name: `${address}`, abi: [], abiRead: parsedReadABI, abiWrite: parsedWriteABI, abiProxyRead: parsedProxyReadABI, abiProxyWrite: parsedProxyWriteABI, contract: { file: plugin.REACT_API.contracts.currentFile } } as ContractData
+        return addInstance(dispatch, { contractData, address, name: `${address}` })
+      } catch (error) {
+        console.error(error);
+        throw new Error(error);
       }
     }
   )
 }
-
 export const getContext = (plugin: RunTab) => {
   return plugin.blockchain.context()
 }

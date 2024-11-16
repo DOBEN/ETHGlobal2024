@@ -440,6 +440,10 @@ export interface UdappProps {
     name: string,
     decodedResponse?: Record<number, any>,
     abi?: any,
+    abiRead?: any,
+    abiWrite?: any,
+    abiProxyRead?: any,
+    abiProxyWrite?: any,
     isPinned?: boolean
     pinnedAt?: number,
     filePath?: string
