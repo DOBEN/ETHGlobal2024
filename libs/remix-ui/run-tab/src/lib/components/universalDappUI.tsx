@@ -375,11 +375,11 @@ export function UniversalDappUI(props: UdappProps) {
               )
             })}
 
-          {/* <br />
+          <br />
           <div >
-            ContractRead
-          </div> */}
-
+            Read
+          </div>
+          <br />
           {contractABIRead &&
             contractABIRead.map((funcABI, index) => {
               if (funcABI.type !== 'function') return null
@@ -424,6 +424,11 @@ export function UniversalDappUI(props: UdappProps) {
               )
             })}
 
+          <br />
+          <div >
+            Write
+          </div>
+          <br />
           {contractABIWrite &&
             contractABIWrite.map((funcABI, index) => {
               if (funcABI.type !== 'function') return null
@@ -468,6 +473,11 @@ export function UniversalDappUI(props: UdappProps) {
               )
             })}
 
+          <br />
+          <div >
+            Proxy Read
+          </div>
+          <br />
           {contractABIProxyRead &&
             contractABIProxyRead.map((funcABI, index) => {
               if (funcABI.type !== 'function') return null
@@ -512,6 +522,11 @@ export function UniversalDappUI(props: UdappProps) {
               )
             })}
 
+          <br />
+          <div >
+            Proxy Write
+          </div>
+          <br />
           {contractABIProxyWrite &&
             contractABIProxyWrite.map((funcABI, index) => {
               if (funcABI.type !== 'function') return null
